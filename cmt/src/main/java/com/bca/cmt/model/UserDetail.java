@@ -2,21 +2,24 @@ package com.bca.cmt.model;
 
 import jakarta.persistence.*;
 
-import java.sql.Date;
+import java.util.Date;
 
 @Entity
 @Table(name = "t_user_detail")
 public class UserDetail {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    private Boolean isActive = false;
+    private Boolean isActive;
     private String token;
-    private Date entryDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false, updatable = false) // Bu alan güncellenemez
+    private Date loginDate = new Date(); // Varsayılan olarak şimdi
+    private Date logoutDate;
 
 
     public User getUser() {
@@ -43,15 +46,21 @@ public class UserDetail {
         this.token = token;
     }
 
-    public Date getEntryDate() {
-        return entryDate;
+    public Date getLoginDate() {
+        return loginDate;
     }
 
-    public void setEntryDate(Date entryDate) {
-        this.entryDate = entryDate;
+    public void setLoginDate(Date loginDate) {
+        this.loginDate = loginDate;
     }
 
+    public Date getLogoutDate() {
+        return logoutDate;
+    }
 
+    public void setLogoutDate(Date logoutDate) {
+        this.logoutDate = logoutDate;
+    }
 
     public void setId(Long id) {
         this.id = id;
