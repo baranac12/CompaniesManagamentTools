@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "t_user_detail")
-public class UserDetail {
+@Table(name = "t_user_history")
+public class UserHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,10 +17,18 @@ public class UserDetail {
     private Boolean isActive;
     private String token;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false, updatable = false) // Bu alan güncellenemez
-    private Date loginDate = new Date(); // Varsayılan olarak şimdi
+    @Column(nullable = false, updatable = false)
+    private Date loginDate = new Date();
     private Date logoutDate;
 
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public User getUser() {
         return user;
@@ -60,13 +68,5 @@ public class UserDetail {
 
     public void setLogoutDate(Date logoutDate) {
         this.logoutDate = logoutDate;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
     }
 }

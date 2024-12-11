@@ -11,7 +11,7 @@ public class LoginDto {
     private String password;
 
 
-    public LoginDto(String username, String password, Date loginDate) {
+    public LoginDto(String username, String password) {
         this.username = username;
         this.password = password;
     }
