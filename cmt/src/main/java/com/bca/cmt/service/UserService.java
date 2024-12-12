@@ -1,10 +1,12 @@
 package com.bca.cmt.service;
 
+import com.bca.cmt.dto.ErrorResponseDto;
 import com.bca.cmt.dto.LoginDto;
 import com.bca.cmt.dto.UserDto;
 import com.bca.cmt.mapper.UserMapper;
 import com.bca.cmt.model.User;
 import com.bca.cmt.repository.UserRepository;
+import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -44,12 +46,15 @@ public class UserService {
     // Kullanıcı kaydetme işlemi
     public ResponseEntity<String> save(User user) {
         try {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body("User saved successfully");
-        } catch (DataIntegrityViolationException ex) {
-            log.error("User already exists or data conflict: {}", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists or data conflict");
+                if (userRepository.findByUsername(user.getUsername()) == null) {
+                    user.setPassword(passwordEncoder.encode(user.getPassword()));
+                    userRepository.save(user);
+                    return ResponseEntity.status(HttpStatus.CREATED).body("User saved successfully");
+                } else {
+                    log.error("User already exists or data conflict: {}", user.getUsername());
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists or data conflict");
+                }
+
         } catch (Exception ex) {
             log.error("An error occurred while saving the user: {}", ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while saving the user");
@@ -57,11 +62,27 @@ public class UserService {
     }
 
     // Kullanıcı giriş doğrulama işlemi
-    public boolean userControl(LoginDto loginDto) {
-        return findByUsername(loginDto.getUsername())
-                .filter(user -> passwordEncoder.matches(loginDto.getPassword(), user.getPassword()))
-                .filter(User::isActive)
-                .isPresent();
+    public ResponseEntity<String> userControl(LoginDto loginDto) {
+        if (findByUsername(loginDto.getUsername()).isPresent()) {
+            if(findByUsername(loginDto.getUsername()).filter(User::isActive).isPresent()){
+                if (findByUsername(loginDto.getUsername())
+                        .filter(user -> passwordEncoder.matches(loginDto.getPassword(), user.getPassword())).isPresent()) {
+
+                    log.info("User Service :: User information is correct : {}", loginDto.getUsername());
+                    return ResponseEntity.status(HttpStatus.OK).body("User information is correct.");
+                }else {
+
+                    log.info("User Service :: User information is not correct : {}", loginDto.getUsername());
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User password is not correct.");
+                }
+            } else {
+                log.info("User Service :: No user authorization : {}", loginDto.getUsername());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No user authorization.");
+            }
+        } else {
+            log.info("User Service :: User not found : {}", loginDto.getUsername());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found");
+        }
     }
 
     // Kullanıcı güncelleme işlemi
