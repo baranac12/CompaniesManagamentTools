@@ -21,9 +21,8 @@ public class LoginService {
     }
 
     public ResponseEntity<String> loginControl(LoginDto loginDto) {
-        if (!userService.userControl(loginDto)) {
-            log.warn(" Login Service :: Invalid credentials or inactive user: {}", loginDto.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials or inactive user");
+        if (!userService.userControl(loginDto).equals(ResponseEntity.status(HttpStatus.OK))) {
+            return userService.userControl(loginDto);
         } else {
 
             return userService.findByUsername(loginDto.getUsername())

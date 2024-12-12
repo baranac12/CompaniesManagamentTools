@@ -40,7 +40,7 @@ public class UserHistoryService {
     private UserHistory createUserHistory(User user) {
         UserHistory userHistory = new UserHistory();
         userHistory.setUser(user);
-        userHistory.setActive(true);
+        userHistory.setIsActive(true);
         return userHistory;
     }
 }

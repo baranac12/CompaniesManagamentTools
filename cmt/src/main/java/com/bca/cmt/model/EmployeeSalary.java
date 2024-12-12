@@ -6,7 +6,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "t_employee_salary_pay")
-public class EmployeePay {
+public class EmployeeSalary {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
