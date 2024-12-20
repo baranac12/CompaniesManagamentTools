@@ -7,15 +7,13 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name = "t_product")
+@Table(name = "t_department")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+public class Department {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "product_id_seq")
-    @SequenceGenerator(name = "product_id_seq", sequenceName = "product_id_seq",  allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "department_id_seq")
+    @SequenceGenerator(name = "department_id_seq", sequenceName = "department_id_seq",  allocationSize=1)
     private Long id;
-
     private String name;
-
 }

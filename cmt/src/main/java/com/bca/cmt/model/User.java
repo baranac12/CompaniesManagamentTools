@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_id_seq")
+    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq",  allocationSize=1)
     private Long id;
 
     @NotBlank (message = "{cmt.constraint.name.notblank}")
@@ -36,6 +37,6 @@ public class User {
     private String email;
     @ManyToOne
     @JoinColumn(name = "departmant_id")
-    private Departmant departmant;
+    private Department department;
     private boolean isActive = true;
 }

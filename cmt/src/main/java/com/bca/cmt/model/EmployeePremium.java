@@ -1,14 +1,21 @@
 package com.bca.cmt.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "t_employee_premium")
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeePremium {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "employee_premium_id_seq")
+    @SequenceGenerator(name = "employee_premium_id_seq", sequenceName = "employee_premium_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -19,43 +26,4 @@ public class EmployeePremium {
     private Integer totalRate;
     private Long totalPremium;
 
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Integer getTotalRate() {
-        return totalRate;
-    }
-
-    public void setTotalRate(Integer totalRate) {
-        this.totalRate = totalRate;
-    }
-
-    public Long getTotalPremium() {
-        return totalPremium;
-    }
-
-    public void setTotalPremium(Long totalPremium) {
-        this.totalPremium = totalPremium;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

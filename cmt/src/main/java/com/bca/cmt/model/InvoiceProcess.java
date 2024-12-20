@@ -1,14 +1,21 @@
 package com.bca.cmt.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "t_invoice_process")
+@AllArgsConstructor
+@NoArgsConstructor
 public class InvoiceProcess {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "invoice_process_id_seq")
+    @SequenceGenerator(name = "invoice_process_id_seq", sequenceName = "invoice_process_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -27,43 +34,4 @@ public class InvoiceProcess {
 
     private Long totalPayment;
 
-    public Companies getCompany() {
-        return company;
-    }
-
-    public void setCompany(Companies company) {
-        this.company = company;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Payment getPayment() {
-        return payment;
-    }
-
-    public void setPayment(Payment payment) {
-        this.payment = payment;
-    }
-
-    public Long getTotalPayment() {
-        return totalPayment;
-    }
-
-    public void setTotalPayment(Long totalPayment) {
-        this.totalPayment = totalPayment;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

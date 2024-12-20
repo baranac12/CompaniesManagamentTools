@@ -1,15 +1,22 @@
 package com.bca.cmt.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "t_employee_salary_pay")
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeSalary {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO,generator = "employee_salary_pay_id_seq")
+    @SequenceGenerator(name = "employee_salary_pay_id_seq", sequenceName = "employee_salary_pay_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -25,60 +32,4 @@ public class EmployeeSalary {
     private Long salary;
     @Column(name = "total_overtime_salary")
     private Long overtimeSalary;
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Integer getTotalHours() {
-        return totalHours;
-    }
-
-    public void setTotalHours(Integer totalHours) {
-        this.totalHours = totalHours;
-    }
-
-    public Integer getTotalOvertime() {
-        return totalOvertime;
-    }
-
-    public void setTotalOvertime(Integer totalOvertime) {
-        this.totalOvertime = totalOvertime;
-    }
-
-    public Long getSalary() {
-        return salary;
-    }
-
-    public void setSalary(Long salary) {
-        this.salary = salary;
-    }
-
-    public Long getOvertimeSalary() {
-        return overtimeSalary;
-    }
-
-    public void setOvertimeSalary(Long overtimeSalary) {
-        this.overtimeSalary = overtimeSalary;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

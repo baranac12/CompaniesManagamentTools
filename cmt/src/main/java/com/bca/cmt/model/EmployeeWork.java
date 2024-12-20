@@ -1,14 +1,21 @@
 package com.bca.cmt.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "t_employee_working_time")
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeWork {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "employee_work_id_seq")
+    @SequenceGenerator(name = "employee_work_id_seq", sequenceName = "employee_work_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -17,36 +24,4 @@ public class EmployeeWork {
 
     private Date date;
     private Integer hoursWorked;
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Integer getHoursWorked() {
-        return hoursWorked;
-    }
-
-    public void setHoursWorked(Integer hoursWorked) {
-        this.hoursWorked = hoursWorked;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }
