@@ -14,7 +14,8 @@ import java.math.BigDecimal;
 @Table(name = "t_employee_pay_info")
 public class EmployeePayInfo {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "employee_pay_info_id_seq")
+    @SequenceGenerator(name = "employee_pay_info_id_seq", sequenceName = "employee_pay_info_id_seq",  allocationSize=1)
     private Long id;
     @OneToOne
     @JoinColumn(name = "employee_id")

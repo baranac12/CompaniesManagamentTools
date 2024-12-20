@@ -1,14 +1,21 @@
 package com.bca.cmt.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "t_companies_transaction")
+@AllArgsConstructor
+@NoArgsConstructor
 public class CompaniesT {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "companies_trans_id_seq")
+    @SequenceGenerator(name = "companies_trans_id_seq", sequenceName = "companies_trans_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -28,60 +35,4 @@ public class CompaniesT {
 
     @Column(name = "payment")
     private Long pay;
-
-    public CompaniesT getCompany() {
-        return company;
-    }
-
-    public void setCompany(CompaniesT company) {
-        this.company = company;
-    }
-
-    public TransactionType getType() {
-        return type;
-    }
-
-    public void setType(TransactionType type) {
-        this.type = type;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Payment getPayment() {
-        return payment;
-    }
-
-    public void setPayment(Payment payment) {
-        this.payment = payment;
-    }
-
-    public Long getPay() {
-        return pay;
-    }
-
-    public void setPay(Long pay) {
-        this.pay = pay;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

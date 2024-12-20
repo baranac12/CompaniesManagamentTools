@@ -1,14 +1,19 @@
 package com.bca.cmt.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "t_sgk_transaction")
+@AllArgsConstructor
+@NoArgsConstructor
 public class SgkT {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sgk_trans_id_seq")
+    @SequenceGenerator(name = "sgk_trans_id_seq", sequenceName = "sgk_trans_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -23,52 +28,4 @@ public class SgkT {
     private Payment payment;
 
     private Long paymentSgk;
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Payment getPayment() {
-        return payment;
-    }
-
-    public void setPayment(Payment payment) {
-        this.payment = payment;
-    }
-
-    public Long getPaymentSgk() {
-        return paymentSgk;
-    }
-
-    public void setPaymentSgk(Long paymentSgk) {
-        this.paymentSgk = paymentSgk;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }
