@@ -2,14 +2,21 @@ package com.bca.cmt.model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "t_employee_overtime")
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeOvertime {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "employee_overtime_id_seq")
+    @SequenceGenerator(name = "employee_overtime_id_seq", sequenceName = "employee_overtime_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -19,44 +26,4 @@ public class EmployeeOvertime {
     private Date date;
     private Long overtime;
     private Long overtimeSalary;
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Long getOvertime() {
-        return overtime;
-    }
-
-    public void setOvertime(Long overtime) {
-        this.overtime = overtime;
-    }
-
-    public Long getOvertimeSalary() {
-        return overtimeSalary;
-    }
-
-    public void setOvertimeSalary(Long overtimeSalary) {
-        this.overtimeSalary = overtimeSalary;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

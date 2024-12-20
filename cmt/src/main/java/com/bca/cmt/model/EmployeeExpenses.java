@@ -1,14 +1,21 @@
 package com.bca.cmt.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "t_employee_expenses")
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmployeeExpenses {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO,generator = "employee_expenses_id_seq")
+    @SequenceGenerator(name = "employee_expenses_id_seq", sequenceName = "employee_expenses_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -26,60 +33,4 @@ public class EmployeeExpenses {
     private Long primIV;
     @Column(name= "is_veren_issizlik")
     private Long issizlik;
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Long getPrim() {
-        return prim;
-    }
-
-    public void setPrim(Long prim) {
-        this.prim = prim;
-    }
-
-    public Long getSigorta() {
-        return sigorta;
-    }
-
-    public void setSigorta(Long sigorta) {
-        this.sigorta = sigorta;
-    }
-
-    public Long getPrimIV() {
-        return primIV;
-    }
-
-    public void setPrimIV(Long primIV) {
-        this.primIV = primIV;
-    }
-
-    public Long getIssizlik() {
-        return issizlik;
-    }
-
-    public void setIssizlik(Long issizlik) {
-        this.issizlik = issizlik;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

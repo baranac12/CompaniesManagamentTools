@@ -15,7 +15,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "t_employee")
 public class Employee {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "employee_id_seq")
+    @SequenceGenerator(name = "employee_id_seq", sequenceName = "employee_id_seq",  allocationSize=1)
     private Long id;
     @NotBlank (message = "{cmt.constraint.name.notblank}")
     @Size(min = 3, max = 50, message = "{cmt.constraint.name.size}")

@@ -6,16 +6,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table (name = "t_employee_details")
-public class EmployeeDetails {
+@Table (name = "t_employee_history")
+public class EmployeeHistory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "employee_history_id_seq")
+    @SequenceGenerator(name = "employee_history_id_seq", sequenceName = "employee_history_id_seq",  allocationSize=1)
     private Long id;
 
     @ManyToOne
@@ -24,7 +24,7 @@ public class EmployeeDetails {
 
     @ManyToOne
     @JoinColumn(name = "departmant_id")
-    private Departmant department;
+    private Department department;
 
     private boolean isActive;
     private LocalDateTime startTime;

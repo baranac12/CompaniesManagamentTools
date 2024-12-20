@@ -1,9 +1,5 @@
 package com.bca.cmt.dto;
 
-import com.bca.cmt.model.Departmant;
-
-import java.util.List;
-
 public class UserDto {
 
     private String name;
