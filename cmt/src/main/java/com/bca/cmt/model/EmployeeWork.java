@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
 import java.util.Date;
 
 @Data
@@ -22,6 +23,6 @@ public class EmployeeWork {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    private Date date;
-    private Integer hoursWorked;
+    private LocalTime date;
+    private Long hoursWorked;
 }
