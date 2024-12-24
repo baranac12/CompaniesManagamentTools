@@ -15,24 +15,16 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class EmployeeDetailsService {
+public class EmployeeHistoryService {
     final EmployeeDetailsRepository employeeDetailsRepository;
     final DepartmantRepository departmentRepository;
 
-    public EmployeeDetailsService(EmployeeDetailsRepository employeeDetailsRepository, DepartmantRepository departmentRepository) {
+    public EmployeeHistoryService(EmployeeDetailsRepository employeeDetailsRepository, DepartmantRepository departmentRepository) {
         this.employeeDetailsRepository = employeeDetailsRepository;
         this.departmentRepository = departmentRepository;
     }
-    public ResponseEntity<String> save (EmployeeHistory employeeHistory) {
-        try{
-            employeeDetailsRepository.save(employeeHistory);
-            return ResponseEntity.ok("Employee Details saved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error saving employee details " + e.getMessage());
-        }
-    }
 
-    public ResponseEntity<String> createEmployeeDetails(Employee employee, EmployeeCreateDto employeeCreateDto) {
+    public ResponseEntity<String> createEmployeeHistory(Employee employee, EmployeeCreateDto employeeCreateDto) {
         EmployeeHistory employeeHistory = new EmployeeHistory();
         Optional<Department> departmentOptional = departmentRepository.findById(employeeCreateDto.getDepartmentId());
 
@@ -47,12 +39,13 @@ public class EmployeeDetailsService {
             employeeHistory.setDepartment(department);
             employeeHistory.setStartTime(LocalDateTime.now());
             employeeHistory.setEndTime(null);
+            employeeDetailsRepository.save(employeeHistory);
+            log.info("Employee details created for employee ID: {}", employee.getId());
+            return ResponseEntity.status(201).body("Employee details created");
         }catch (Exception e) {
             log.error("Error creating employee details " + e.getMessage());
             return ResponseEntity.status(500).body("Error creating employee details " + e.getMessage());
         }
 
-        log.info("Employee details created for employee ID: {}", employee.getId());
-        return save(employeeHistory);
     }
 }

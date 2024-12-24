@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Data
@@ -22,8 +24,8 @@ public class EmployeeOvertime {
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
-
-    private Date date;
+    private Long workId;
+    private LocalTime date;
     private Long overtime;
     private Long overtimeSalary;
 }

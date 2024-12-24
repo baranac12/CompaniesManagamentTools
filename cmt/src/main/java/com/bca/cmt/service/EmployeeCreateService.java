@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 public class EmployeeCreateService {
 
     final EmployeeService employeeService;
-    final EmployeeDetailsService employeeDetailsService;
+    final EmployeeHistoryService employeeHistoryService;
     final EmployeePayInfoService employeePayInfoService;
 
 
-    public EmployeeCreateService(EmployeeService employeeService, EmployeeDetailsService employeeDetailsService, EmployeePayInfoService employeePayInfoService) {
+    public EmployeeCreateService(EmployeeService employeeService, EmployeeHistoryService employeeHistoryService, EmployeePayInfoService employeePayInfoService) {
         this.employeeService = employeeService;
-        this.employeeDetailsService = employeeDetailsService;
+        this.employeeHistoryService = employeeHistoryService;
         this.employeePayInfoService = employeePayInfoService;
     }
 
@@ -32,7 +32,7 @@ public class EmployeeCreateService {
             Employee employee = employeeService.createEmployee(employeeService.dtoToEmployee(employeeCreateDto));
 
             // Çalışan detaylarını oluştur
-            ResponseEntity<String> detailsResponse = employeeDetailsService.createEmployeeDetails(employee, employeeCreateDto);
+            ResponseEntity<String> detailsResponse = employeeHistoryService.createEmployeeHistory(employee, employeeCreateDto);
             if (detailsResponse.getStatusCode() != HttpStatus.OK) {
                 return detailsResponse;
             }
