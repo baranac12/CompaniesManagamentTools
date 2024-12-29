@@ -1,5 +1,6 @@
-package com.bca.cmt.service;
+package com.bca.cmt.service.employee.employeeInfoComposite.employeeInfo;
 
+import com.bca.cmt.dto.EmployeeCompositeDto;
 import com.bca.cmt.dto.EmployeeCreateDto;
 import com.bca.cmt.model.Employee;
 import com.bca.cmt.model.EmployeePayInfo;
@@ -8,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
 @Slf4j
 @Service
 public class EmployeePayInfoService {
@@ -35,6 +40,27 @@ public class EmployeePayInfoService {
             return saveEmployeePayInfo(employeePayInfo);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating employee pay info: " + e.getMessage());
+        }
+    }
+
+    public EmployeePayInfo findByEmployeeId(Long employeeId) {
+        return employeePayInfoRepository.findByEmployeeId(employeeId)
+                .orElseThrow(() -> new NoSuchElementException("Employee pay info not found with id: " + employeeId));
+    }
+    public List<EmployeePayInfo> findAllEmployeePayInfo() {
+        return employeePayInfoRepository.findAll();
+    }
+
+    public ResponseEntity<String> updatePayInfo(EmployeePayInfo payInfo, EmployeeCompositeDto employeeCompositeDto, Employee employee) {
+        try {
+            payInfo.setEmployee(employee);
+            payInfo.setSalary(employeeCompositeDto.getSalary());
+            payInfo.setHourlySalary(employeeCompositeDto.getHourlySalary());
+            employeePayInfoRepository.save(payInfo);
+            return ResponseEntity.ok("Employee Pay Info saved successfully");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating employee pay info: " + e.getMessage());
         }
     }
 }
