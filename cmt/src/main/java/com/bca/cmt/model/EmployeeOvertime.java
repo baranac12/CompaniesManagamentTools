@@ -24,8 +24,10 @@ public class EmployeeOvertime {
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
-    private Long workId;
-    private LocalTime date;
+    @ManyToOne
+    @JoinColumn(name = "work_id")
+    private EmployeeWork workId;
+    private LocalDate workingDate;
     private Long overtime;
     private Long overtimeSalary;
 }
