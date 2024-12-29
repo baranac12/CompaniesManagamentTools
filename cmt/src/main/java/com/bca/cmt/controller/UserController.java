@@ -2,7 +2,7 @@ package com.bca.cmt.controller;
 
 import com.bca.cmt.dto.UserDto;
 import com.bca.cmt.model.User;
-import com.bca.cmt.service.UserService;
+import com.bca.cmt.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
