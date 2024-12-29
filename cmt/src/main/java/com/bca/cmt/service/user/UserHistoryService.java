@@ -1,4 +1,4 @@
-package com.bca.cmt.service;
+package com.bca.cmt.service.user;
 
 import com.bca.cmt.model.User;
 import com.bca.cmt.model.UserHistory;
