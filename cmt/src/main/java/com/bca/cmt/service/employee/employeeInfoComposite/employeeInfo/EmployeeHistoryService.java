@@ -2,11 +2,11 @@ package com.bca.cmt.service.employee.employeeInfoComposite.employeeInfo;
 
 import com.bca.cmt.dto.EmployeeCompositeDto;
 import com.bca.cmt.dto.EmployeeCreateDto;
-import com.bca.cmt.model.Department;
-import com.bca.cmt.model.Employee;
-import com.bca.cmt.model.EmployeeHistory;
-import com.bca.cmt.repository.DepartmantRepository;
-import com.bca.cmt.repository.EmployeeHistoryRepository;
+import com.bca.cmt.model.department.Department;
+import com.bca.cmt.model.employee.Employee;
+import com.bca.cmt.model.employee.EmployeeHistory;
+import com.bca.cmt.repository.department.DepartmentRepository;
+import com.bca.cmt.repository.employee.EmployeeHistoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +22,9 @@ import java.util.Optional;
 @Service
 public class EmployeeHistoryService {
     final EmployeeHistoryRepository employeeHistoryRepository;
-    final DepartmantRepository departmentRepository;
+    final DepartmentRepository departmentRepository;
 
-    public EmployeeHistoryService( EmployeeHistoryRepository employeeHistoryRepository, DepartmantRepository departmentRepository) {
+    public EmployeeHistoryService( EmployeeHistoryRepository employeeHistoryRepository, DepartmentRepository departmentRepository) {
         this.employeeHistoryRepository = employeeHistoryRepository;
         this.departmentRepository = departmentRepository;
     }
@@ -34,10 +34,9 @@ public class EmployeeHistoryService {
         Optional<Department> departmentOptional = departmentRepository.findById(employeeCreateDto.getDepartmentId());
 
         if (departmentOptional.isEmpty()) {
-            log.error("Department with ID {} not found", employeeCreateDto.getDepartmentId());
-            return ResponseEntity.status(404).body("Department not found");
+            log.error("DepartmentController with ID {} not found", employeeCreateDto.getDepartmentId());
+            return ResponseEntity.status(404).body("DepartmentController not found");
         }
-        try {
             Department department = departmentOptional.get();
             employeeHistory.setEmployee(employee);
             employeeHistory.setActive(true);
@@ -47,10 +46,6 @@ public class EmployeeHistoryService {
             employeeHistoryRepository.save(employeeHistory);
             log.info("Employee details created for employee ID: {}", employee.getId());
             return ResponseEntity.status(201).body("Employee details created");
-        }catch (Exception e) {
-            log.error("Error creating employee details " + e.getMessage());
-            return ResponseEntity.status(500).body("Error creating employee details " + e.getMessage());
-        }
 
     }
     public EmployeeHistory findByEmployeeId(Long employeeId) {
@@ -60,21 +55,16 @@ public class EmployeeHistoryService {
     public List<EmployeeHistory> findByAllEmployeeHistory() {
         return employeeHistoryRepository.findAll();
     }
-    public ResponseEntity<String> updateEmployeeHistory(EmployeeHistory history, EmployeeCompositeDto employeeCompositeDto,Employee employee) {
-        try {
+    public ResponseEntity<Object> updateEmployeeHistory(EmployeeHistory history, EmployeeCompositeDto employeeCompositeDto,Employee employee) {
             history.setEmployee(employee);
             history.setActive(employeeCompositeDto.getIsActive());
             history.setDepartment(departmentRepository.findByName(employeeCompositeDto.getDepartmentName()));
-            history.setStartTime(employeeCompositeDto.getStartTime().toLocalDateTime());
-            if (employeeCompositeDto.getEndTime() != null) {
-                history.setEndTime(employeeCompositeDto.getEndTime().toLocalDateTime());
-            }
             employeeHistoryRepository.save(history);
-            return ResponseEntity.status(HttpStatus.OK).body("Employee details updated");
-        }
-        catch (Exception e) {
-            log.error("Error creating employee details " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating employee details " + e.getMessage());
-        }
+            return ResponseEntity.status(HttpStatus.OK).body(history);
+    }
+
+    public ResponseEntity<String> deleteEmployee(Long employeeId) {
+        employeeHistoryRepository.updateEmployeeIsActive(employeeId);
+        return ResponseEntity.status(HttpStatus.OK).body("Employee deleted successfully");
     }
 }
