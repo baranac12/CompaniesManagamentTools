@@ -1,8 +1,8 @@
 package com.bca.cmt.service.user;
 
-import com.bca.cmt.model.User;
-import com.bca.cmt.model.UserHistory;
-import com.bca.cmt.repository.UserHistoryRepository;
+import com.bca.cmt.model.user.User;
+import com.bca.cmt.model.user.UserHistory;
+import com.bca.cmt.repository.user.UserHistoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +25,11 @@ public class UserHistoryService {
             log.error("Save operation failed: User is not present in the request");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user information");
         }
-
-        try {
             UserHistory userHistory = createUserHistory(user.get());
             userHistoryRepository.save(userHistory);
             log.info("User history created successfully for user: {}", user.get().getUsername());
             return ResponseEntity.status(HttpStatus.CREATED).body("User history created successfully");
-        } catch (Exception e) {
-            log.error("Error occurred while saving user history: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create user history");
-        }
+
     }
 
     private UserHistory createUserHistory(User user) {

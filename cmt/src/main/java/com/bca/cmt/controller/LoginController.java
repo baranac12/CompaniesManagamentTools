@@ -8,10 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@RequestMapping("/v1/")
 public class LoginController {
 
     final LoginService loginService;
@@ -20,15 +22,9 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping("/api/v1/login")
+    @PostMapping("login")
     public ResponseEntity<String>   login(@Valid @RequestBody LoginDto loginDto) {
-        try {
             return loginService.loginControl(loginDto);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Login controller :: unexpected error : {" + e.getMessage() + "}");
-        }
-
     }
 
 }

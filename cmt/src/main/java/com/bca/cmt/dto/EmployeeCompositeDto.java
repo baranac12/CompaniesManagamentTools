@@ -1,9 +1,5 @@
 package com.bca.cmt.dto;
 
-import com.bca.cmt.model.Employee;
-import com.bca.cmt.model.EmployeeHistory;
-import com.bca.cmt.model.EmployeePayInfo;
-import com.bca.cmt.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor

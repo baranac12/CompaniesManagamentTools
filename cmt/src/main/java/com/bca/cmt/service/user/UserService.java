@@ -3,8 +3,8 @@ package com.bca.cmt.service.user;
 import com.bca.cmt.dto.LoginDto;
 import com.bca.cmt.dto.UserDto;
 import com.bca.cmt.mapper.UserMapper;
-import com.bca.cmt.model.User;
-import com.bca.cmt.repository.UserRepository;
+import com.bca.cmt.model.user.User;
+import com.bca.cmt.repository.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,20 +42,11 @@ public class UserService {
 
     // Kullanıcı kaydetme işlemi
     public ResponseEntity<String> save(User user) {
-        try {
-                if (userRepository.findByUsername(user.getUsername()) == null) {
+
                     user.setPassword(passwordEncoder.encode(user.getPassword()));
                     userRepository.save(user);
                     return ResponseEntity.status(HttpStatus.CREATED).body("User saved successfully");
-                } else {
-                    log.error("User already exists or data conflict: {}", user.getUsername());
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists or data conflict");
-                }
 
-        } catch (Exception ex) {
-            log.error("An error occurred while saving the user: {}", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while saving the user");
-        }
     }
 
     // Kullanıcı giriş doğrulama işlemi
@@ -83,7 +74,7 @@ public class UserService {
     }
 
     // Kullanıcı güncelleme işlemi
-    public ResponseEntity<String> update(User user, Long id) {
+    public ResponseEntity<Object> update(User user, Long id) {
         Optional<User> userOptional = userRepository.findById(id);
 
         if (userOptional.isEmpty()) {
@@ -91,7 +82,6 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
 
-        try {
             User userU = userOptional.get();
             userU.setName(user.getName());
             userU.setSurname(user.getSurname());
@@ -101,11 +91,7 @@ public class UserService {
             userRepository.save(userU);
 
             log.info("User with ID {} updated successfully", id);
-            return ResponseEntity.status(HttpStatus.OK).body("User updated successfully");
-         } catch (Exception ex) {
-            log.error("Unexpected error while updating user with ID {}: {}", id, ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update user");
-        }
+            return ResponseEntity.status(HttpStatus.OK).body(userU);
     }
 }
 

@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/v1/")
 public class EmployeeController {
 
     final EmployeeCompositeService employeeCompositeService;
@@ -37,19 +37,13 @@ public class EmployeeController {
             return ResponseEntity.status(500).body("Error creating employee: " + e.getMessage());
         }
     }
-    @GetMapping("employee")
-    public List<EmployeeCompositeDto> getAllEmployees() {return employeeCompositeService.findAll();}
-
-    @GetMapping("/employee/{id}")
-    public List<EmployeeCompositeDto> getEmployeeById(@PathVariable("id") Long id) {return employeeCompositeService.findById(id);}
-
-    @PutMapping("/employee/{id}")
-    public ResponseEntity<String> updateEmployee(@Valid @RequestBody EmployeeCompositeDto employeeCompositeDto, @PathVariable("id") Long id) {
-        try {
+    @PutMapping("employee/{id}")
+    public ResponseEntity<Object> updateEmployee(@Valid @RequestBody EmployeeCompositeDto employeeCompositeDto, @PathVariable("id") Long id) {
             return employeeCompositeService.updateEmployee(id,employeeCompositeDto);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating employee: " + e.getMessage());
-        }
+    }
+    @PutMapping("employeeDelete/{id}")
+    public ResponseEntity<String> deleteEmployee(@PathVariable("id") Long id) {
+        return employeeCompositeService.deleteEmployee(id);
     }
 
     @PostMapping("employeeWork")
@@ -61,8 +55,23 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating employee: " + e.getMessage());
         }
     }
+
+    @GetMapping("employee")
+    public List<EmployeeCompositeDto> getAllEmployees() {return employeeCompositeService.findAll();}
+
+    @GetMapping("employee/{id}")
+    public List<EmployeeCompositeDto> getEmployeeById(@PathVariable("id") Long id) {return employeeCompositeService.findById(id);}
+
     @GetMapping("employeeWork/{id}")
     public List<EmployeeWorkCompositeDto> getEmployeeWorkById(@PathVariable("id") Long id) {
         return employeeWorkCompositeService.findgetAllWorkByEmployeeId(id);
+    }
+    @GetMapping("employeeWork")
+    public List<EmployeeWorkCompositeDto> getAllEmployeeWork() {
+        return employeeWorkCompositeService.findAll();
+    }
+    @GetMapping("employeeList")
+    public List<Object[]> getEmployeeList() {
+        return employeeCompositeService.findAllEmployeeName();
     }
 }

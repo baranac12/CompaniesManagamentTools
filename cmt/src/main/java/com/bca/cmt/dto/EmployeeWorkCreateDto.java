@@ -18,4 +18,5 @@ public class EmployeeWorkCreateDto {
         private Long workedHours;
         private Long overtimeHours;
         private Long overtimeSalary;
+        private Integer amountProduct;
 }
