@@ -15,18 +15,14 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class EmployeePerf {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO , generator = "employee_perf_id_seq")
-    @SequenceGenerator(name = "employee_perf_id_seq", sequenceName = "employee_perf_id_seq",  allocationSize=1)
+    @GeneratedValue(strategy = GenerationType.AUTO , generator = "employee_performance_id_seq")
+    @SequenceGenerator(name = "employee_performance_id_seq", sequenceName = "employee_performance_id_seq",  allocationSize=1)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
+    private Long employee_id;
 
     private LocalDate date;
     private Integer amountProduct;
 
-    @ManyToOne
-    @JoinColumn(name = "rate_id")
-    private EmployeePerfRate rate;
+    private Integer rate;
 }

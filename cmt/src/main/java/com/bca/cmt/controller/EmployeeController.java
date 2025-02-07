@@ -1,10 +1,13 @@
 package com.bca.cmt.controller;
 
-import com.bca.cmt.dto.EmployeeCompositeDto;
-import com.bca.cmt.dto.EmployeeWorkCompositeDto;
-import com.bca.cmt.dto.EmployeeWorkCreateDto;
+import com.bca.cmt.dto.*;
+import com.bca.cmt.model.employee.EmployeePaymentInfo;
+import com.bca.cmt.model.employee.EmployeePerf;
+import com.bca.cmt.model.employee.EmployeePerfRate;
+import com.bca.cmt.service.employee.EmployeePaymentInfoService;
 import com.bca.cmt.service.employee.employeeInfoComposite.EmployeeCompositeService;
-import com.bca.cmt.dto.EmployeeCreateDto;
+import com.bca.cmt.service.employee.employeePerformance.EmployeePerfRateService;
+import com.bca.cmt.service.employee.employeePerformance.EmployeePerfService;
 import com.bca.cmt.service.employee.employeeWorkComposite.EmployeeWorkCompositeService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -21,21 +24,23 @@ public class EmployeeController {
 
     final EmployeeCompositeService employeeCompositeService;
     private final EmployeeWorkCompositeService employeeWorkCompositeService;
+    final EmployeePerfService employeePerfService;
+    final EmployeePerfRateService employeePerfRateService ;
+    final EmployeePaymentInfoService employeePaymentInfoService;
 
-    public EmployeeController(EmployeeCompositeService employeeCompositeService, EmployeeWorkCompositeService employeeWorkCompositeService) {
+
+    public EmployeeController(EmployeeCompositeService employeeCompositeService, EmployeeWorkCompositeService employeeWorkCompositeService, EmployeePerfService employeePerfService, EmployeePerfRateService employeePerfRateService, EmployeePaymentInfoService employeePaymentInfoService) {
         this.employeeCompositeService = employeeCompositeService;
         this.employeeWorkCompositeService = employeeWorkCompositeService;
+        this.employeePerfService = employeePerfService;
+        this.employeePerfRateService = employeePerfRateService;
+        this.employeePaymentInfoService = employeePaymentInfoService;
     }
 
     @PostMapping("employee")
     public ResponseEntity<String> createEmployee(@Valid @RequestBody EmployeeCreateDto employeeCreateDto) {
-        try {
             // Servis katmanındaki metod çağrısı yapılır
             return employeeCompositeService.createEmployee(employeeCreateDto);
-        } catch (Exception e) {
-            // Hata durumunda loglama ve mesaj döndürülmesi
-            return ResponseEntity.status(500).body("Error creating employee: " + e.getMessage());
-        }
     }
     @PutMapping("employee/{id}")
     public ResponseEntity<Object> updateEmployee(@Valid @RequestBody EmployeeCompositeDto employeeCompositeDto, @PathVariable("id") Long id) {
@@ -73,5 +78,29 @@ public class EmployeeController {
     @GetMapping("employeeList")
     public List<Object[]> getEmployeeList() {
         return employeeCompositeService.findAllEmployeeName();
+    }
+
+    @PostMapping("performanceRate")
+    public ResponseEntity<String> createRate(@RequestBody EmployeePerfRate rate) {
+        return  employeePerfRateService.createEmployeePerfRate(rate);
+    }
+
+    @PutMapping("performanceRate")
+    public ResponseEntity<String> updateRate(@RequestBody EmployeePerfRate rate) {
+        return employeePerfRateService.updateEmployeePerfRate(rate);
+    }
+    @GetMapping("performanceRate")
+    public List<EmployeePerfRate> getRate() {
+        return employeePerfRateService.listEmployeePerfRate();
+    }
+
+    @GetMapping("performance")
+    public List<EmployeePerfDto> getPerformance() {
+        return employeePerfService.listEmployeePerf();
+    }
+
+    @GetMapping("paymentInfo")
+    public List<EmployeePaymentInfoDto> getPaymentInfo() {
+        return employeePaymentInfoService.listAll();
     }
 }

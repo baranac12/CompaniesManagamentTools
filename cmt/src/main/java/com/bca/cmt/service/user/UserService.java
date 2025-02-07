@@ -21,16 +21,19 @@ import static java.util.stream.Collectors.toList;
 @Service
 public class UserService {
 
+
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder() ;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     // Kullanıcıyı kullanıcı adına göre bulur
-    public Optional<User> findByUsername(String username) {
-        return Optional.ofNullable(userRepository.findByUsername(username));
+    public List<UserDto> findByUsername(String username) {
+        return userRepository.findByUsername(username).stream()
+                .map(UserMapper::toUserList)
+                .collect(toList());
     }
 
     // Tüm kullanıcıları DTO olarak döner
@@ -51,9 +54,9 @@ public class UserService {
 
     // Kullanıcı giriş doğrulama işlemi
     public ResponseEntity<String> userControl(LoginDto loginDto) {
-        if (findByUsername(loginDto.getUsername()).isPresent()) {
-            if(findByUsername(loginDto.getUsername()).filter(User::isActive).isPresent()){
-                if (findByUsername(loginDto.getUsername())
+        if (userRepository.findByUsername(loginDto.getUsername()).isPresent()) {
+            if(userRepository.findByUsername(loginDto.getUsername()).filter(User::isActive).isPresent()){
+                if (userRepository.findByUsername(loginDto.getUsername())
                         .filter(user -> passwordEncoder.matches(loginDto.getPassword(), user.getPassword())).isPresent()) {
 
                     log.info("User Service :: User information is correct : {}", loginDto.getUsername());

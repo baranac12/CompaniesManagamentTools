@@ -34,6 +34,5 @@ public class CompaniesT {
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
-    @Column(name = "payment")
-    private Long pay;
+    private Long balance;
 }

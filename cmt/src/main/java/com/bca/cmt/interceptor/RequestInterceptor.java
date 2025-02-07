@@ -1,5 +1,6 @@
 package com.bca.cmt.interceptor;
 
+import com.bca.cmt.service.log.LogService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Slf4j
 @Component
 public class RequestInterceptor implements HandlerInterceptor {
+
+    final LogService logService;
+
+    public RequestInterceptor(LogService logService) {
+        this.logService = logService;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
