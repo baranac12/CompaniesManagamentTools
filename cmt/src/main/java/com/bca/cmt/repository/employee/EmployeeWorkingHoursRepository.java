@@ -8,9 +8,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface EmployeeWorkingHoursRepository extends JpaRepository<EmployeeWorkingHours,Long> {
-    @Query(value = "select tewt.id,tewt.working_date,tewt.employee_id,te.name,te.surname,tewt.hours_worked,teo.overtime,teo.overtime_salary \n" +
-            "from t_employee_working_hours tewt ,t_employee_overtime teo, t_employee te \n" +
-            "where tewt.employee_id = teo.employee_id  and tewt.working_date = teo.working_date and tewt.employee_id = te.id",nativeQuery = true)
+    @Query(value = "select tewt.id,tewt.working_date,tewt.employee_id,te.name,te.surname,tewt.hours_worked,teo.overtime,teo.overtime_salary " +
+            "from t_employee_working_hours tewt ,t_employee_overtime teo, t_employee te " +
+            "where tewt.id = teo.work_id  and tewt.employee_id = te.id",nativeQuery = true)
     List<Object[]> getAllWork();
 
     @Query(value = "select tewt.id,tewt.working_date,tewt.employee_id,te.name,te.surname,tewt.hours_worked,teo.overtime,teo.overtime_salary \n" +

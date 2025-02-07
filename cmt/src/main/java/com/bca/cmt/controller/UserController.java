@@ -9,10 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/v1/")
+@RequestMapping("/v1")
 public class UserController {
 
     final UserService userService;
@@ -21,17 +22,16 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("user")
+    @PostMapping("/user")
         public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
             return userService.save(user);
     }
-    @GetMapping("user")
+    @GetMapping("/users")
     public List<UserDto> getUser() {
             return userService.findAll();
     }
 
-
-    @PutMapping("user/{id}")
+    @PutMapping("/user/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable Long id ,@Valid @RequestBody User user) {
                return  userService.update(user,id);
     }

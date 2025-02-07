@@ -28,8 +28,10 @@ public class EmployeePaymentInfo {
     @Column(name = "total_hours_worked")
     private Integer totalHours ;
     private Integer totalOvertime;
-    @Column(name = "total_salary")
+    private Long performanceRate;
     private Long salary;
-    @Column(name = "total_overtime_salary")
     private Long overtimeSalary;
+    private Long workingSalary;
+    private Long premium;
+    private Long paidSalary;;
 }
