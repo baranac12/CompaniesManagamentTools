@@ -1,6 +1,7 @@
 package com.bca.cmt.controller;
 
-import com.bca.cmt.dto.UserDto;
+import com.bca.cmt.dto.UserRequest;
+import com.bca.cmt.dto.UserResponse;
 import com.bca.cmt.model.user.User;
 import com.bca.cmt.service.user.UserService;
 import jakarta.validation.Valid;
@@ -9,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -23,16 +23,21 @@ public class UserController {
     }
 
     @PostMapping("/user")
-        public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
-            return userService.save(user);
+        public ResponseEntity<String> createUser(@Valid @RequestBody UserRequest user) {
+
+        return userService.save(user);
     }
     @GetMapping("/users")
-    public List<UserDto> getUser() {
+    public List<UserResponse> getUser() {
             return userService.findAll();
     }
 
     @PutMapping("/user/{id}")
-    public ResponseEntity<Object> updateUser(@PathVariable Long id ,@Valid @RequestBody User user) {
+    public ResponseEntity<Object> updateUser(@PathVariable Long id ,@Valid @RequestBody UserRequest user) {
                return  userService.update(user,id);
+    }
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<Object> deleteUser(@PathVariable Long id) {
+        return  userService.delete(id);
     }
 }

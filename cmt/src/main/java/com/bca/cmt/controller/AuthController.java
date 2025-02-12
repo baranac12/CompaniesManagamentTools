@@ -1,8 +1,7 @@
 package com.bca.cmt.controller;
 
 import com.bca.cmt.dto.LoginDto;
-import com.bca.cmt.dto.UserDto;
-import com.bca.cmt.model.user.User;
+import com.bca.cmt.dto.UserResponse;
 import com.bca.cmt.service.AuthService;
 import com.bca.cmt.service.user.UserService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,11 +27,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<List<UserDto>> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
+    public ResponseEntity<List<UserResponse>> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
         Map<String, ResponseCookie> cookies = authService.login(loginDto.getUsername(), loginDto.getPassword());
         response.addHeader(HttpHeaders.SET_COOKIE, cookies.get("accessToken").toString());
         response.addHeader(HttpHeaders.SET_COOKIE, cookies.get("refreshToken").toString());
-        List<UserDto> user = userService.findByUsername(loginDto.getUsername());
+        List<UserResponse> user = userService.findByUsername(loginDto.getUsername());
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 

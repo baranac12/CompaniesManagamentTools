@@ -5,7 +5,9 @@ import { loginUser } from './api.js';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUsers } from '../../redux/userSlice.js';
-import { login } from '../../redux/authSlice.js'
+import { login } from '../../redux/authSlice.js';
+import bgImage from '../../assets/homeBG.png';
+import logo from '../../assets/logo.png'
 
 export function Login() {
   // Initialize state with empty strings
@@ -29,10 +31,10 @@ export function Login() {
       })
       dispatch(login(response.data[0]))
       dispatch(setUsers(response.data[0]))
-
       navigate('/dashboard')
     } catch (error) {
-      console.log(error)
+      console.log(error.response.data)
+      setErrorMessage(error.response.data.message)
     } finally {
       setApiProgress(false)
 
@@ -57,7 +59,7 @@ export function Login() {
   }
 
   const layoutStyle = {
-    backgroundImage: "url('https://blog.ipleaders.in/wp-content/uploads/2021/09/register-company-online-1.png')",
+    backgroundImage: `url(${bgImage})`,
     backgroundSize: '100% 100%',
     minHeight: '100vh',
   }
@@ -67,7 +69,7 @@ export function Login() {
       <div style={divStyle}>
         <Image
           width={300}
-          src='src/assets/900952.png'
+          src={logo}
           style={{
             width: '100%',
           }}
