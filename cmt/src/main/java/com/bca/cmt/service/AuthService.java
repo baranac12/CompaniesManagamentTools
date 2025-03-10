@@ -1,28 +1,25 @@
 package com.bca.cmt.service;
 
-import com.bca.cmt.exception.token.BlacklistedTokenException;
 import com.bca.cmt.exception.token.RefreshTokenNotFoundException;
 import com.bca.cmt.exception.user.InvalidPasswordException;
 import com.bca.cmt.exception.user.UserNotFoundException;
 import com.bca.cmt.model.Token;
-import com.bca.cmt.model.user.User;
+import com.bca.cmt.model.user.Users;
 import com.bca.cmt.repository.TokenRepository;
 import com.bca.cmt.repository.user.UserRepository;
 import com.bca.cmt.util.JwtUtil;
-;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+;
 
 
 @Service
@@ -45,32 +42,32 @@ public class AuthService {
     }
 
     public Map<String, ResponseCookie> login(String username, String password) {
-        User user = userRepository.findByUsername(username)
+        Users users = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Username not found"));
 
-        if (user.getUsername().equals("admin")) {
+        if (users.getUsername().equals("admin")) {
 
-            if (password == user.getPassword()) {
+            if (password == users.getPassword()) {
                 throw new InvalidPasswordException("Invalid password");
             }
 
         } else {
-            if (!passwordEncoder.matches(password, user.getPassword())) {
+            if (!passwordEncoder.matches(password, users.getPassword())) {
                 throw new InvalidPasswordException("Password does not match");
             }
         }
 
         // Yeni tokenlar oluştur
-        String accessToken = jwtUtil.generateAccessToken(user.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+        String accessToken = jwtUtil.generateAccessToken(users.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(users.getUsername());
 
         // Token expiration tarihlerini al
         LocalDateTime accessTokenExpiration = jwtUtil.extractExpiration(accessToken);
         LocalDateTime refreshTokenExpiration = jwtUtil.extractExpiration(refreshToken);
 
         // Tokenları veritabanında güncelle
-        Token token = tokenRepository.findByUser(user).orElse(new Token());
-        token.setUser(user);
+        Token token = tokenRepository.findByUsers(users).orElse(new Token());
+        token.setUsers(users);
         token.setAccessToken(accessToken);
         token.setAccessTokenExpiryDate(accessTokenExpiration);
         token.setRefreshToken(refreshToken);
@@ -109,15 +106,15 @@ public class AuthService {
             LocalDateTime newRefreshTokenExpiration = jwtUtil.extractExpiration(newRefreshToken);
 
             // Kullanıcıyı veritabanından bulup token'ları ve expiration tarihlerini güncelle
-            User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-            Token token = tokenRepository.findByUser(user).orElseThrow(() -> new RuntimeException("Token not found"));
+            Users users = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+            Token token = tokenRepository.findByUsers(users).orElseThrow(() -> new RuntimeException("Token not found"));
             token.setAccessToken(newAccessToken);
             token.setAccessTokenExpiryDate(newAccessTokenExpiration);
             token.setRefreshToken(newRefreshToken);
             token.setRefreshTokenExpiryDate(newRefreshTokenExpiration);
 
             // Veritabanını güncelle
-            userRepository.save(user);
+            userRepository.save(users);
 
             return newAccessToken;
         } else {
@@ -131,12 +128,5 @@ public class AuthService {
 
         token.setBlacklisted(true);
         tokenRepository.save(token);
-        Cookie accessTokenCookie = new Cookie("access_token", null);
-        accessTokenCookie.setMaxAge(0);
-        response.addCookie(accessTokenCookie);
-
-        Cookie refreshTokenCookie = new Cookie("refresh_token", null);
-        refreshTokenCookie.setMaxAge(0);
-        response.addCookie(refreshTokenCookie);
     }
 }

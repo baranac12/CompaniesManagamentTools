@@ -1,6 +1,6 @@
 package com.bca.cmt.service.user;
 
-import com.bca.cmt.model.user.User;
+import com.bca.cmt.model.user.Users;
 import com.bca.cmt.model.user.UserHistory;
 import com.bca.cmt.repository.user.UserHistoryRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class UserHistoryService {
         this.userHistoryRepository = userHistoryRepository;
     }
 
-    public ResponseEntity<String> save(Optional<User> user) {
+    public ResponseEntity<String> save(Optional<Users> user) {
         if (user.isEmpty()) {
             log.error("Save operation failed: User is not present in the request");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user information");
@@ -32,9 +32,9 @@ public class UserHistoryService {
 
     }
 
-    private UserHistory createUserHistory(User user) {
+    private UserHistory createUserHistory(Users users) {
         UserHistory userHistory = new UserHistory();
-        userHistory.setUser(user);
+        userHistory.setUsers(users);
         userHistory.setIsActive(true);
         return userHistory;
     }

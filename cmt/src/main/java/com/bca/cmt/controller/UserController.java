@@ -2,7 +2,6 @@ package com.bca.cmt.controller;
 
 import com.bca.cmt.dto.UserRequest;
 import com.bca.cmt.dto.UserResponse;
-import com.bca.cmt.model.user.User;
 import com.bca.cmt.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;

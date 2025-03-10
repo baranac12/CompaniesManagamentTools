@@ -1,6 +1,6 @@
 package com.bca.cmt.config;
 
-import com.bca.cmt.model.user.User;
+import com.bca.cmt.model.user.Users;
 import com.bca.cmt.repository.TokenRepository;
 import com.bca.cmt.repository.user.UserRepository;
 import com.bca.cmt.util.JwtUtil;
@@ -56,15 +56,15 @@ public class Filter extends OncePerRequestFilter {
             // Eğer accessToken mevcutsa, süresi dolmuş mu kontrol et
             if (accessToken != null && !jwtUtil.isTokenExpired(accessToken)) {
                 String username = jwtUtil.extractUsername(accessToken);
-                User user = userRepository.findByUsername(username).orElse(null);
+                Users users = userRepository.findByUsername(username).orElse(null);
 
-                if (user != null) {
+                if (users != null) {
                     // Kullanıcıyı authenticate et ve SecurityContextHolder'a ekle
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(users, null, new ArrayList<>());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     // Yeni access token oluştur
-                    String newAccessToken = jwtUtil.generateAccessToken(user.getUsername());
+                    String newAccessToken = jwtUtil.generateAccessToken(users.getUsername());
 
                     // Yeni access token'ı cookie'ye ekle
                     ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
@@ -80,11 +80,11 @@ public class Filter extends OncePerRequestFilter {
             // Eğer refreshToken varsa, refresh token süresi dolmuş mu kontrol et
             else if (refreshToken != null && !jwtUtil.isTokenExpired(refreshToken)) {
                 String username = jwtUtil.extractUsername(refreshToken);
-                User user = userRepository.findByUsername(username).orElse(null);
+                Users users = userRepository.findByUsername(username).orElse(null);
 
-                if (user != null) {
+                if (users != null) {
                     // Yeni access token oluştur
-                    String newAccessToken = jwtUtil.generateAccessToken(user.getUsername());
+                    String newAccessToken = jwtUtil.generateAccessToken(users.getUsername());
 
                     // Yeni access token'ı cookie'ye ekle
                     ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
@@ -96,7 +96,7 @@ public class Filter extends OncePerRequestFilter {
                     response.addHeader(HttpHeaders.SET_COOKIE, newAccessTokenCookie.toString());
 
                     // Yeni refresh token oluştur
-                    String newRefreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+                    String newRefreshToken = jwtUtil.generateRefreshToken(users.getUsername());
 
                     // Yeni refresh token'ı cookie'ye ekle
                     ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", newRefreshToken)
@@ -108,7 +108,7 @@ public class Filter extends OncePerRequestFilter {
                     response.addHeader(HttpHeaders.SET_COOKIE, newRefreshTokenCookie.toString());
 
                     // Kullanıcıyı authenticate et ve SecurityContextHolder'a ekle
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(users, null, new ArrayList<>());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }

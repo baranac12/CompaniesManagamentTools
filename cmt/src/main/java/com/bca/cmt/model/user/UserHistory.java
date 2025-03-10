@@ -21,7 +21,7 @@ public class UserHistory {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private Users users;
     private Boolean isActive;
     private String token;
     private LocalDateTime loginDate ;

@@ -4,12 +4,16 @@ import com.bca.cmt.dto.LoginDto;
 import com.bca.cmt.dto.UserRequest;
 import com.bca.cmt.dto.UserResponse;
 import com.bca.cmt.mapper.UserMapper;
-import com.bca.cmt.model.user.User;
+import com.bca.cmt.model.user.Users;
 import com.bca.cmt.repository.department.DepartmentRepository;
 import com.bca.cmt.repository.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,8 +25,18 @@ import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        // UserDetails olarak döndür
+        return User.builder()
+                .username(userEntity.getUsername())
+                .password(userEntity.getPassword()) // şifreyi veritabanından alın
+                .build();
+    }
 
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
@@ -36,7 +50,7 @@ public class UserService {
     // Kullanıcıyı kullanıcı adına göre bulur
     public List<UserResponse> findByUsername(String username) {
         return userRepository.findByUsername(username).stream()
-                .filter(User::isActive)
+                .filter(Users::isActive)
                 .map(UserMapper::toUserList)
                 .collect(toList());
     }
@@ -44,21 +58,21 @@ public class UserService {
     // Tüm kullanıcıları DTO olarak döner
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
-                .filter(User::isActive)
+                .filter(Users::isActive)
                 .map(UserMapper::toUserList)
                 .collect(toList());
     }
 
     // Kullanıcı kaydetme işlemi
     public ResponseEntity<String> save(UserRequest user) {
-                    User newUser = new User();
-                    newUser.setUsername(user.getUsername());
-                    newUser.setName(user.getName());
-                    newUser.setEmail(user.getEmail());
-                    newUser.setSurname(user.getSurname());
-                    newUser.setDepartment(departmentRepository.findByName(user.getDepartmant()));
-                    newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-                    userRepository.save(newUser);
+                    Users newUsers = new Users();
+                    newUsers.setUsername(user.getUsername());
+                    newUsers.setName(user.getName());
+                    newUsers.setEmail(user.getEmail());
+                    newUsers.setSurname(user.getSurname());
+                    newUsers.setDepartment(departmentRepository.findByName(user.getDepartmant()));
+                    newUsers.setPassword(passwordEncoder.encode(user.getPassword()));
+                    userRepository.save(newUsers);
                     return ResponseEntity.status(HttpStatus.CREATED).body("User saved successfully");
 
     }
@@ -66,7 +80,7 @@ public class UserService {
     // Kullanıcı giriş doğrulama işlemi
     public ResponseEntity<String> userControl(LoginDto loginDto) {
         if (userRepository.findByUsername(loginDto.getUsername()).isPresent()) {
-            if(userRepository.findByUsername(loginDto.getUsername()).filter(User::isActive).isPresent()){
+            if(userRepository.findByUsername(loginDto.getUsername()).filter(Users::isActive).isPresent()){
                 if (userRepository.findByUsername(loginDto.getUsername())
                         .filter(user -> passwordEncoder.matches(loginDto.getPassword(), user.getPassword())).isPresent()) {
 
@@ -89,39 +103,39 @@ public class UserService {
 
     // Kullanıcı güncelleme işlemi
     public ResponseEntity<Object> update(UserRequest user, Long id) {
-        Optional<User> userOptional = userRepository.findById(id);
+        Optional<Users> userOptional = userRepository.findById(id);
 
         if (userOptional.isEmpty()) {
             log.error("User with ID {} not found", id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-            User userU = userOptional.get();
-            userU.setName(user.getName());
-            userU.setSurname(user.getSurname());
-            userU.setUsername(user.getUsername());
-            userU.setEmail(user.getEmail());
-            userU.setDepartment(departmentRepository.findByName(user.getDepartmant()));
+            Users usersU = userOptional.get();
+            usersU.setName(user.getName());
+            usersU.setSurname(user.getSurname());
+            usersU.setUsername(user.getUsername());
+            usersU.setEmail(user.getEmail());
+            usersU.setDepartment(departmentRepository.findByName(user.getDepartmant()));
         if (user.getPassword() == null) {
-            userU.setPassword(userOptional.get().getPassword());
+            usersU.setPassword(userOptional.get().getPassword());
         } else {
-            userU.setPassword(passwordEncoder.encode(user.getPassword()));
+            usersU.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-            userRepository.save(userU);
+            userRepository.save(usersU);
 
             log.info("User with ID {} updated successfully", id);
-            return ResponseEntity.status(HttpStatus.OK).body(userU);
+            return ResponseEntity.status(HttpStatus.OK).body(usersU);
     }
 
     public ResponseEntity<Object> delete(Long id) {
-        Optional<User> userOptional = userRepository.findById(id);
+        Optional<Users> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             log.error("User with ID {} not found", id);
         }
         userOptional.get().setActive(false);
-        User user = userOptional.get();
-        userRepository.save(user);
+        Users users = userOptional.get();
+        userRepository.save(users);
         log.info("User with ID {} deleted successfully", id);
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 }
 

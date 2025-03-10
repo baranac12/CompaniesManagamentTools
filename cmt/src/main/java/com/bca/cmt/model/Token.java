@@ -1,6 +1,6 @@
 package com.bca.cmt.model;
 
-import com.bca.cmt.model.user.User;
+import com.bca.cmt.model.user.Users;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +29,5 @@ public class Token {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private Users users;
 }

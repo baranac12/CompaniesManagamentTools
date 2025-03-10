@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
     @UniqueConstraint(columnNames = {"username"})
 })
 
-public class User {
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_id_seq")
