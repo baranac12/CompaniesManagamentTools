@@ -10,12 +10,17 @@ import com.bca.cmt.repository.TokenRepository;
 import com.bca.cmt.repository.user.UserRepository;
 import com.bca.cmt.util.JwtUtil;
 ;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +32,11 @@ public class AuthService {
     private final TokenRepository tokenRepository;
     private final JwtUtil jwtUtil;
     private  PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Value("${accessTokenExpiration}")
+    private long accessTokenExpiration;
+
+    @Value("${refreshTokenExpiration}")
+    private long refreshTokenExpiration;
 
     public AuthService(UserRepository userRepository, TokenRepository tokenRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
@@ -51,16 +61,20 @@ public class AuthService {
         }
 
         // Yeni tokenlar oluştur
-        String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
+        String accessToken = jwtUtil.generateAccessToken(user.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+
+        // Token expiration tarihlerini al
+        LocalDateTime accessTokenExpiration = jwtUtil.extractExpiration(accessToken);
+        LocalDateTime refreshTokenExpiration = jwtUtil.extractExpiration(refreshToken);
 
         // Tokenları veritabanında güncelle
         Token token = tokenRepository.findByUser(user).orElse(new Token());
         token.setUser(user);
         token.setAccessToken(accessToken);
-        token.setAccessTokenExpiryDate(LocalDateTime.now().plusSeconds(15));
+        token.setAccessTokenExpiryDate(accessTokenExpiration);
         token.setRefreshToken(refreshToken);
-        token.setRefreshTokenExpiryDate(LocalDateTime.now().plusSeconds(120));
+        token.setRefreshTokenExpiryDate(refreshTokenExpiration);
         token.setBlacklisted(false);
 
         tokenRepository.save(token);
@@ -70,14 +84,12 @@ public class AuthService {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(15)
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(120)
                 .build();
 
         Map<String, ResponseCookie> cookies = new HashMap<>();
@@ -86,42 +98,45 @@ public class AuthService {
 
         return cookies;
     }
+    public String refreshAccessToken(String refreshToken) {
+        String username = jwtUtil.extractUsername(refreshToken);
+        if (username != null && !jwtUtil.isTokenExpired(refreshToken)) {
+            String newAccessToken = jwtUtil.generateAccessToken(username);
+            String newRefreshToken = jwtUtil.generateRefreshToken(username);
 
-    public ResponseCookie refreshTokens(String refreshToken) {
-        Token token = tokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new RefreshTokenNotFoundException("Invalid refresh token"));
+            // Yeni token expiration tarihlerini al
+            LocalDateTime newAccessTokenExpiration = jwtUtil.extractExpiration(newAccessToken);
+            LocalDateTime newRefreshTokenExpiration = jwtUtil.extractExpiration(newRefreshToken);
 
-        if (token.isBlacklisted()) {
-            throw new BlacklistedTokenException("Refresh token is blacklisted");
-        }
-
-        boolean refreshExpired = token.getRefreshTokenExpiryDate().isBefore(LocalDateTime.now());
-
-        String newAccessToken = jwtUtil.generateAccessToken(token.getUser());
-        token.setAccessToken(newAccessToken);
-        token.setAccessTokenExpiryDate(LocalDateTime.now().plusSeconds(15));
-
-        if (refreshExpired) {
-            String newRefreshToken = jwtUtil.generateRefreshToken(token.getUser());
+            // Kullanıcıyı veritabanından bulup token'ları ve expiration tarihlerini güncelle
+            User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+            Token token = tokenRepository.findByUser(user).orElseThrow(() -> new RuntimeException("Token not found"));
+            token.setAccessToken(newAccessToken);
+            token.setAccessTokenExpiryDate(newAccessTokenExpiration);
             token.setRefreshToken(newRefreshToken);
-            token.setRefreshTokenExpiryDate(LocalDateTime.now().plusSeconds(120));
+            token.setRefreshTokenExpiryDate(newRefreshTokenExpiration);
+
+            // Veritabanını güncelle
+            userRepository.save(user);
+
+            return newAccessToken;
+        } else {
+            throw new RuntimeException("Refresh token is expired or invalid.");
         }
-
-        tokenRepository.save(token);
-
-        return ResponseCookie.from("accessToken", token.getAccessToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(15)
-                .build();
     }
 
-    public void logout(String refreshToken) {
+    public void logout(String refreshToken , HttpServletResponse response) {
         Token token = tokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new RefreshTokenNotFoundException("Invalid refresh token"));
 
         token.setBlacklisted(true);
         tokenRepository.save(token);
+        Cookie accessTokenCookie = new Cookie("access_token", null);
+        accessTokenCookie.setMaxAge(0);
+        response.addCookie(accessTokenCookie);
+
+        Cookie refreshTokenCookie = new Cookie("refresh_token", null);
+        refreshTokenCookie.setMaxAge(0);
+        response.addCookie(refreshTokenCookie);
     }
 }

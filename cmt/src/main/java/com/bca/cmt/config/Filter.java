@@ -1,6 +1,5 @@
 package com.bca.cmt.config;
 
-import com.bca.cmt.model.Token;
 import com.bca.cmt.model.user.User;
 import com.bca.cmt.repository.TokenRepository;
 import com.bca.cmt.repository.user.UserRepository;
@@ -13,20 +12,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class Filter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -34,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Set<String> blacklistedTokens = new HashSet<>();
 
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserRepository userRepository, TokenRepository tokenRepository) {
+    public Filter(JwtUtil jwtUtil, UserRepository userRepository, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
@@ -68,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     // Yeni access token oluştur
-                    String newAccessToken = jwtUtil.generateAccessToken(user);
+                    String newAccessToken = jwtUtil.generateAccessToken(user.getUsername());
 
                     // Yeni access token'ı cookie'ye ekle
                     ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
@@ -88,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (user != null) {
                     // Yeni access token oluştur
-                    String newAccessToken = jwtUtil.generateAccessToken(user);
+                    String newAccessToken = jwtUtil.generateAccessToken(user.getUsername());
 
                     // Yeni access token'ı cookie'ye ekle
                     ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
@@ -100,7 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.addHeader(HttpHeaders.SET_COOKIE, newAccessTokenCookie.toString());
 
                     // Yeni refresh token oluştur
-                    String newRefreshToken = jwtUtil.generateRefreshToken(user);
+                    String newRefreshToken = jwtUtil.generateRefreshToken(user.getUsername());
 
                     // Yeni refresh token'ı cookie'ye ekle
                     ResponseCookie newRefreshTokenCookie = ResponseCookie.from("refreshToken", newRefreshToken)

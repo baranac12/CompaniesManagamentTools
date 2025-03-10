@@ -29,6 +29,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<List<UserResponse>> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
         Map<String, ResponseCookie> cookies = authService.login(loginDto.getUsername(), loginDto.getPassword());
+
         response.addHeader(HttpHeaders.SET_COOKIE, cookies.get("accessToken").toString());
         response.addHeader(HttpHeaders.SET_COOKIE, cookies.get("refreshToken").toString());
         List<UserResponse> user = userService.findByUsername(loginDto.getUsername());
@@ -37,14 +38,14 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Void> refreshTokens(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
-        ResponseCookie cookie = authService.refreshTokens(refreshToken);
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        String cookie = authService.refreshAccessToken(refreshToken);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@CookieValue("refreshToken") String refreshToken) {
-        authService.logout(refreshToken);
+    public ResponseEntity<String> logout(@CookieValue("refreshToken") String refreshToken,HttpServletResponse response) {
+        authService.logout(refreshToken,response);
         return ResponseEntity.ok("Logged out successfully");
     }
 }

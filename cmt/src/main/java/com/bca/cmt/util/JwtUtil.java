@@ -5,57 +5,70 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.security.Key;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
     private final Key SECRET_KEY;
+    @Value("${accessTokenExpiration}")
+    private long accessTokenExpiration;
+
+    @Value("${refreshTokenExpiration}")
+    private long refreshTokenExpiration;
 
     public JwtUtil() {
         this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256) ;
     }
 
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(String username) {
+        Date now = new Date();
+        Date expirationDate = new Date(now.getTime() + accessTokenExpiration);
         return Jwts.builder()
-                .setSubject(user.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(Date.from(Instant.now().plus(15, ChronoUnit.MINUTES)))
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(String username) {
+        Date now = new Date();
+        Date expirationDate = new Date(now.getTime() + refreshTokenExpiration);
+
         return Jwts.builder()
-                .setSubject(user.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(Date.from(Instant.now().plus(7, ChronoUnit.DAYS)))
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
 
-    public boolean isTokenExpired(String token)  {
-        try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(SECRET_KEY)
-                    .parseClaimsJws(token)
-                    .getBody();
-            return claims.getExpiration().before(new Date());
-        } catch (Exception e) {
-            return true;
-        }
-    }
-
-    public String extractUsername(String token) {
+    public Claims extractClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+    }
+
+    public boolean isTokenExpired(String token) {
+        return extractClaims(token).getExpiration().before(new Date());
+    }
+
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public boolean validateToken(String token, String username) {
+        return (username.equals(extractUsername(token)) && !isTokenExpired(token));
+    }
+
+    public LocalDateTime extractExpiration(String token) {
+        Date expirationDate = extractClaims(token).getExpiration();
+        return expirationDate.toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
     }
 }

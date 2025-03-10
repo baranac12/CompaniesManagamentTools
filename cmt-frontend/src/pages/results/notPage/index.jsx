@@ -6,7 +6,7 @@ const App = () => {
     const navigate = useNavigate(); // useNavigate'ı bileşen içinde kullanın
 
     const onClick = () => {
-        navigate('/cmt'); // Kullanıcıyı login sayfasına yönlendir
+        navigate('/dashboard'); // Kullanıcıyı login sayfasına yönlendir
     };
 
     return (
