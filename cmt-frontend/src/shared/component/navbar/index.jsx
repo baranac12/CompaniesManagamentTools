@@ -47,10 +47,9 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         await logout();
-        navigate('/login');
         dispatch(dropUser());
         dispatch(logoutUser());
-
+        navigate('/login');
     };
 
     const userMenu = (
