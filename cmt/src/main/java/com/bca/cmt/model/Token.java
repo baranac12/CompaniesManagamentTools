@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @NoArgsConstructor
@@ -19,11 +20,13 @@ public class Token {
     @SequenceGenerator(name = "token_id_seq", sequenceName = "token_id_seq",  allocationSize=1)
     private Long id;
 
+    @Column(length = 1024)  // Burada uzunluğu arttırıyoruz
     private String accessToken;
-    private LocalDateTime accessTokenExpiryDate;
+    private OffsetDateTime accessTokenExpiryDate;
 
+    @Column(length = 1024)  // Burada uzunluğu arttırıyoruz
     private String refreshToken;
-    private LocalDateTime refreshTokenExpiryDate;
+    private OffsetDateTime refreshTokenExpiryDate;
 
     private boolean blacklisted;
 

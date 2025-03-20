@@ -2,6 +2,7 @@ package com.bca.cmt.mapper;
 
 
 import com.bca.cmt.dto.UserResponse;
+import com.bca.cmt.model.Token;
 import com.bca.cmt.model.user.Users;
 
 public class UserMapper {
@@ -16,6 +17,5 @@ public class UserMapper {
                     entity.getDepartment().getName()
             );
         }
-
 
 }

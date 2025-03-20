@@ -3,9 +3,6 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Spin, Form, Input, Layout, Image } from 'antd';
 import { loginUser } from './api.js';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { setUsers } from '../../redux/userSlice.js';
-import { login } from '../../redux/authSlice.js';
 import bgImage from '../../assets/homeBG.png';
 import logo from '../../assets/logo.png'
 
@@ -18,19 +15,15 @@ export function Login() {
   const [errorMessage, setErrorMessage] = useState();
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const onSubmit = async (event) => {
     setApiProgress(true)
-    setSuccessMessage();
     setErrorMessage();
     try {
-      const response = await loginUser({
+      await loginUser({
         username,
         password
       })
-      dispatch(login(response.data[0]))
-      dispatch(setUsers(response.data[0]))
       navigate('/dashboard')
     } catch (error) {
       console.log(error.response.data)
@@ -40,6 +33,8 @@ export function Login() {
 
     }
   }
+
+
   const onChangeUsername = (e) => {
     setUsername(e.target.value);
   };

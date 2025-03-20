@@ -1,14 +1,12 @@
 import { React, useEffect } from "react";
 import { Menu, Avatar, Dropdown, Button } from "antd";
 import { DashboardOutlined, TeamOutlined, SettingOutlined, UserOutlined, DatabaseOutlined, DollarOutlined, ShoppingCartOutlined, CodeSandboxOutlined, HistoryOutlined, LogoutOutlined, UnlockOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { dropUser, setUsers } from "../../../redux/userSlice";
-import { logout } from "../../../redux/authSlice";
 import { logoutUser } from "../../../pages/login/api";
 import logo from "../../../assets/logo.png";
 import "./navbar.css"; // CSS dosyasını içe aktar
 import { Header } from "antd/es/layout/layout";
+
 
 const items = [
     { label: 'Dashboard', key: "dashboard", icon: <DashboardOutlined style={{ fontSize: '20px' }} />, path: '/dashboard' },
@@ -29,27 +27,16 @@ const items = [
 ];
 
 const Navbar = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const users = useSelector((state) => state.users.users);
-    console.log(users)
-    useEffect(() => {
-        // Sayfa yenilendiğinde localStorage'dan kullanıcı bilgisini al ve Redux'a set et
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        if (storedUser) {
-            dispatch(setUsers(storedUser));  // localStorage'dan kullanıcı bilgilerini Redux'a aktarıyoruz
-        }
-    }, [dispatch]);
 
     const handleMenuClick = (path) => {
         navigate(path);  // Yönlendirme işlemi
     };
 
     const handleLogout = async () => {
-        await logout();
-        dispatch(dropUser());
-        dispatch(logoutUser());
+        
         navigate('/login');
+        await logoutUser();
     };
 
     const userMenu = (
@@ -98,7 +85,7 @@ const Navbar = () => {
                     <Avatar src="https://www.w3schools.com/w3images/avatar2.png" />
                     <Dropdown overlay={userMenu} trigger={['click']}>
                         <Button type="link" style={{ color: "white" }}>
-                            {users?.name} {users?.surname}
+                            "admin"
                         </Button>
                     </Dropdown>
                 </div>

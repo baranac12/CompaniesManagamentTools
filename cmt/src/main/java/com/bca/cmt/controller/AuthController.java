@@ -2,50 +2,85 @@ package com.bca.cmt.controller;
 
 import com.bca.cmt.dto.LoginDto;
 import com.bca.cmt.dto.UserResponse;
+import com.bca.cmt.model.Token;
+import com.bca.cmt.model.user.Users;
+import com.bca.cmt.repository.TokenRepository;
 import com.bca.cmt.service.AuthService;
 import com.bca.cmt.service.user.UserService;
+import com.bca.cmt.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
+import java.time.OffsetDateTime;
 
 @RestController
 @RequestMapping("/v1/auth")
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
+    private final TokenRepository tokenRepository;
     private final UserService userService;
+    @Value("${accessTokenExpiration}")
+    private long accessTokenExpiration;
 
-    public AuthController(AuthService authService, UserService userService) {
+    @Value("${refreshTokenExpiration}")
+    private long refreshTokenExpiration;
+
+    public AuthController(AuthService authService, JwtUtil jwtUtil, TokenRepository tokenRepository, UserService userService) {
         this.authService = authService;
+        this.jwtUtil = jwtUtil;
+        this.tokenRepository = tokenRepository;
         this.userService = userService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<List<UserResponse>> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
-        Map<String, ResponseCookie> cookies = authService.login(loginDto.getUsername(), loginDto.getPassword());
+    public ResponseEntity<String> login(@RequestBody LoginDto loginDto, HttpServletResponse response) {
+        authService.auth(loginDto.getUsername(), loginDto.getPassword());
+        Token token = new Token();
+        var newAccessToken = jwtUtil.generateAccessToken(loginDto.getUsername());
+        var newRefreshToken = jwtUtil.generateRefreshToken(loginDto.getUsername());
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookies.get("accessToken").toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, cookies.get("refreshToken").toString());
-        List<UserResponse> user = userService.findByUsername(loginDto.getUsername());
-        return ResponseEntity.status(HttpStatus.OK).body(user);
-    }
+        var accessTokenExpiry =  OffsetDateTime.now().plusSeconds(accessTokenExpiration/1000);
+        var refreshTokenExpiry =  OffsetDateTime.now().plusSeconds(refreshTokenExpiration/1000);
 
-    @PostMapping("/refresh")
-    public ResponseEntity<Void> refreshTokens(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
-        String cookie = authService.refreshAccessToken(refreshToken);
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie);
-        return ResponseEntity.ok().build();
+        if (tokenRepository.findByUsers(userService.findByUsername(loginDto.getUsername())).isPresent()){
+            token = tokenRepository.findByUsers(userService.findByUsername(loginDto.getUsername())).orElse(null);
+        } else {
+            token.setUsers(userService.findByUsername(loginDto.getUsername()));
+        }
+        token.setAccessToken(newAccessToken);
+        token.setRefreshToken(newRefreshToken);
+        token.setRefreshTokenExpiryDate(refreshTokenExpiry);
+        token.setAccessTokenExpiryDate(accessTokenExpiry);
+        token.setBlacklisted(false);
+        tokenRepository.save(token);
+
+
+
+        Cookie accessTokenCookie  =  jwtUtil.addCookie(response,"accessToken",newAccessToken,(int) accessTokenExpiration/1000);
+        Cookie refreshTokenCookie =  jwtUtil.addCookie(response,"refreshToken",newRefreshToken,(int) refreshTokenExpiration/1000);
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Login Successfully");
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@CookieValue("refreshToken") String refreshToken,HttpServletResponse response) {
-        authService.logout(refreshToken,response);
+        authService.logout(refreshToken);
+
+        Cookie accessTokenCookie  = jwtUtil.addCookie(response,"accessToken",null, 0);
+        Cookie refreshTokenCookie =  jwtUtil.addCookie(response,"refreshToken",null,0);
+
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
+
         return ResponseEntity.ok("Logged out successfully");
     }
 }

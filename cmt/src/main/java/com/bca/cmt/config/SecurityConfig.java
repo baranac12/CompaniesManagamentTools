@@ -1,6 +1,8 @@
 package com.bca.cmt.config;
 
 import com.bca.cmt.service.user.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,11 +39,30 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/v1/auth/logout") // Custom logout URL
-                        .logoutSuccessUrl("/login") // Logout başarılı olduğunda yönlendirilecek URL
                         .invalidateHttpSession(true) // Oturum geçersiz kılma
                         .clearAuthentication(true) // Kimlik doğrulama bilgilerini temizleme
-                        .deleteCookies("access_token", "refresh_token") // İlgili cookie'leri temizle
+                        .addLogoutHandler((request, response, authentication) -> {
+                            Cookie accessTokenCookie = new Cookie("accessToken", null);
+                            accessTokenCookie.setHttpOnly(true);
+                            accessTokenCookie.setSecure(false); // Prod ortamda true yap
+                            accessTokenCookie.setPath("/");
+                            accessTokenCookie.setMaxAge(0); // Çerezi hemen sil
+
+                            // Refresh token çerezini temizleme
+                            Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+                            refreshTokenCookie.setHttpOnly(true);
+                            refreshTokenCookie.setSecure(false); // Prod ortamda true yap
+                            refreshTokenCookie.setPath("/");
+                            refreshTokenCookie.setMaxAge(0); // Çerezi hemen sil
+
+                            // Çerezleri yanıtla ekle
+                            response.addCookie(accessTokenCookie);
+                            response.addCookie(refreshTokenCookie);
+                        })
                         .permitAll()
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK); // Yönlendirme yapma, sadece 200 OK dön
+                        })
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // JWT filtreyi ekle
         return http.build();

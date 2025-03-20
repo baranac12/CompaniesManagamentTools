@@ -1,6 +1,5 @@
 package com.bca.cmt.service.user;
 
-import com.bca.cmt.dto.LoginDto;
 import com.bca.cmt.dto.UserRequest;
 import com.bca.cmt.dto.UserResponse;
 import com.bca.cmt.mapper.UserMapper;
@@ -47,14 +46,6 @@ public class UserService implements UserDetailsService {
         this.departmentRepository = departmentRepository;
     }
 
-    // Kullanıcıyı kullanıcı adına göre bulur
-    public List<UserResponse> findByUsername(String username) {
-        return userRepository.findByUsername(username).stream()
-                .filter(Users::isActive)
-                .map(UserMapper::toUserList)
-                .collect(toList());
-    }
-
     // Tüm kullanıcıları DTO olarak döner
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
@@ -62,9 +53,15 @@ public class UserService implements UserDetailsService {
                 .map(UserMapper::toUserList)
                 .collect(toList());
     }
+    public Users findByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
 
     // Kullanıcı kaydetme işlemi
     public ResponseEntity<String> save(UserRequest user) {
+                    if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+                        return ResponseEntity.status(HttpStatus.CONFLICT).body("This username is not available");
+                    }
                     Users newUsers = new Users();
                     newUsers.setUsername(user.getUsername());
                     newUsers.setName(user.getName());
@@ -77,29 +74,6 @@ public class UserService implements UserDetailsService {
 
     }
 
-    // Kullanıcı giriş doğrulama işlemi
-    public ResponseEntity<String> userControl(LoginDto loginDto) {
-        if (userRepository.findByUsername(loginDto.getUsername()).isPresent()) {
-            if(userRepository.findByUsername(loginDto.getUsername()).filter(Users::isActive).isPresent()){
-                if (userRepository.findByUsername(loginDto.getUsername())
-                        .filter(user -> passwordEncoder.matches(loginDto.getPassword(), user.getPassword())).isPresent()) {
-
-                    log.info("User Service :: User information is correct : {}", loginDto.getUsername());
-                    return ResponseEntity.status(HttpStatus.OK).body("User information is correct.");
-                }else {
-
-                    log.info("User Service :: User information is not correct : {}", loginDto.getUsername());
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User password is not correct.");
-                }
-            } else {
-                log.info("User Service :: No user authorization : {}", loginDto.getUsername());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No user authorization.");
-            }
-        } else {
-            log.info("User Service :: User not found : {}", loginDto.getUsername());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found");
-        }
-    }
 
     // Kullanıcı güncelleme işlemi
     public ResponseEntity<Object> update(UserRequest user, Long id) {
@@ -126,7 +100,7 @@ public class UserService implements UserDetailsService {
             return ResponseEntity.status(HttpStatus.OK).body(usersU);
     }
 
-    public ResponseEntity<Object> delete(Long id) {
+    public ResponseEntity<String> delete(Long id) {
         Optional<Users> userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             log.error("User with ID {} not found", id);
@@ -135,7 +109,7 @@ public class UserService implements UserDetailsService {
         Users users = userOptional.get();
         userRepository.save(users);
         log.info("User with ID {} deleted successfully", id);
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        return ResponseEntity.status(HttpStatus.OK).body("User deleted");
     }
 }
 
